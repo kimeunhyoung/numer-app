@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Numerology Data Test</title>
+</head>
+<body>
+  <h3>Testing data.v2.js load</h3>
+  <pre id="out">Loading...</pre>
+  <script src="data.v2.js?v=1"></script>
+  <script>
+    try {
+      const ok = !!window.NUMEROLOGY_DATA;
+      document.getElementById('out').textContent = ok ? 'NUMEROLOGY_DATA loaded: keys = ' + Object.keys(window.NUMEROLOGY_DATA).join(', ') : 'NUMEROLOGY_DATA not found';
+      console.log('NUMEROLOGY_DATA', window.NUMEROLOGY_DATA);
+    } catch (e) {
+      document.getElementById('out').textContent = 'Error: ' + (e && e.message);
+      console.error(e);
+    }
+  </script>
+</body>
+</html>
+

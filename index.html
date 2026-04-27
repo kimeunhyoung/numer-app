@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>라이프코드 (Life Code) — 숫자로 읽는 나의 본질</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="manifest" href="./manifest.json">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+
+
+
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="LifeCode">
+<link rel="apple-touch-icon" href="icon-192.png"> <meta name="theme-color" content="#090a10"> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <style>
+        :root {
+            --bg: #07060d;
+            --bg-2: #0f0b1f;
+            --panel: rgba(15, 17, 30, 0.82);
+            --panel-strong: rgba(21, 24, 42, 0.9);
+            --accent: #8f63ff;
+            --accent-2: #b991ff;
+            --text: #f8f6ef;
+            --gold: #d9b16f;
+            --gold-soft: #f1dbb0;
+            --blue: #7da6ff;
+            --red: #ff8f8f;
+            --teal: #7de0d0;
+            --muted: #d0c7de;
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --glass-shadow: 0 24px 60px rgba(6, 4, 16, 0.5);
+        }
+        * { box-sizing: border-box; }
+        *:focus-visible {
+            outline: 2px solid var(--gold-soft);
+            outline-offset: 2px;
+        }
+        body {
+            background:
+                radial-gradient(circle at 15% 10%, rgba(143, 99, 255, 0.18), transparent 35%),
+                radial-gradient(circle at 85% 20%, rgba(217, 177, 111, 0.14), transparent 32%),
+                linear-gradient(145deg, var(--bg), var(--bg-2));
+            color: var(--text);
+            font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+            margin: 0;
+            padding: 18px;
+            line-height: 1.72;
+            min-height: 100vh;
+        }
+
+/* 로그인 화면 스타일 */
+        #loginView { 
+            max-width: 400px; margin: 100px auto; text-align: center; 
+            background: var(--panel); padding: 40px; border-radius: 24px; border: 1px solid var(--glass-border);
+            backdrop-filter: blur(16px);
+            box-shadow: var(--glass-shadow);
+        }
+        .login-input { width: 100%; padding: 14px; margin-bottom: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.24); background: rgba(6,10,22,0.45); color: white; }
+        
+        /* 메인 컨테이너 (처음엔 숨김) */
+        .container {
+            display: none;
+            max-width: 840px;
+            margin: 0 auto;
+            background: var(--panel);
+            padding: 24px;
+            border-radius: 28px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(16px);
+            box-shadow: var(--glass-shadow);
+        }
+
+
+        
+        .header h1 {
+            text-align: center;
+            font-size: 1.55rem;
+            color: var(--gold-soft);
+            margin-bottom: 4px;
+            font-family: 'Cormorant Garamond', serif;
+            letter-spacing: 1px;
+            text-shadow: 0 0 16px rgba(217,177,111,0.2);
+        }
+        .header p { text-align: center; font-size: 0.86rem; color: #e4dcf1; margin-bottom: 20px; }
+        .input-box { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        input { padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.28); background: rgba(11,14,28,0.9); color: #fff; font-size: 1rem; }
+        button {
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.25);
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1.06rem;
+            box-shadow: 0 10px 24px rgba(143,99,255,0.35);
+        }
+        button:hover { filter: brightness(1.06); }
+        button:active { transform: translateY(1px); }
+        .section-title {
+            font-size: 1rem;
+            color: var(--gold-soft);
+            border-left: 2px solid var(--gold);
+            padding-left: 10px;
+            margin: 20px 0 10px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+        .cycle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 10px; }
+        .cycle-mini-card { background: rgba(20,24,42,0.92); padding: 8px 5px; border-radius: 10px; text-align: center; border: 1px solid var(--glass-border); backdrop-filter: blur(8px); position:relative; }
+        .cycle-mini-card span { display: block; font-size: 0.7rem; color: #d6cfea; margin-bottom: 4px; }
+        .cycle-mini-card strong { font-size: 1.2rem; color: var(--accent); display: block; }
+        .cycle-mini-card.cycle-mini-active { border:1.5px solid var(--gold); background:rgba(217,177,111,0.1); box-shadow:0 0 10px rgba(217,177,111,0.18); }
+        .cycle-mini-active strong { color:var(--gold); }
+        .major-now-badge { font-size:0.62rem; font-weight:700; color:#1a1230; background:var(--gold); border-radius:10px; padding:1px 7px; margin-left:7px; vertical-align:middle; }
+        .cycle-mini-range { font-size:0.62rem; color:#9990b8; margin-top:3px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .card {
+            background: rgba(20,24,42,0.92);
+            padding: 13px 6px;
+            border-radius: 14px;
+            text-align: center;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 20px rgba(5, 4, 12, 0.3);
+        }
+        .card span { display: block; font-size: 0.78rem; color: #d8d0ea; margin-bottom: 5px; }
+        .card strong { font-size: 1.1rem; color: var(--accent); display: block; }
+        .highlight-card { border: 1px solid rgba(185,145,255,0.72) !important; box-shadow: 0 0 16px rgba(143,99,255,0.28); }
+        .zodiac-card { grid-column: span 3; padding: 20px; border-color: var(--gold); margin-bottom: 5px; }
+        .zodiac-name { font-size: 1.6rem; color: #ffca28; font-weight: 900; display: block; margin-bottom: 5px; }
+        .zodiac-desc { font-size: 0.95rem; color: var(--teal); font-weight: 600; line-height: 1.4; }
+        .accordion { margin-bottom: 7px; border-radius: 10px; overflow: hidden; border: 1px solid var(--glass-border); background: rgba(20,24,42,0.92); backdrop-filter: blur(8px); }
+        .accordion-header { background: rgba(255,255,255,0.04); padding: 9px 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .accordion-header h4 { margin: 0; font-size: 0.88rem; color: var(--teal); }
+        .accordion-header::after { content: '▼'; font-size: 0.65rem; color: var(--gold); transition: 0.3s; }
+        .accordion.active .accordion-header::after { transform: rotate(180deg); }
+        .accordion-content { background: rgba(13,15,28,0.92); display: none; padding: 10px 12px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .accordion.active .accordion-content { display: block; }
+        .q-text { font-size: 0.8rem; color: var(--gold-soft); display: block; margin-bottom: 6px; border-bottom: 1px dashed rgba(255,255,255,0.15); padding-bottom: 3px; }
+        .desc-content {
+            font-size: 0.88rem;
+            font-weight: 400;
+            color: #e8e3f2;
+            text-align: justify;
+            line-height: 1.68;
+            letter-spacing: 0;
+        }
+        .kw { color: var(--accent); font-weight: bold; }
+        /* Make Pinnacle/Challenge bracket labels slightly lighter inside cycle accordion for visual consistency */
+        .cycle-content-acc .kw { font-weight: 500; color: var(--accent); }
+        .legend-item, .yc-year, .yc-desc, .bar-year, .bar-energy { color: #d6cde6; }
+        .loshu-label { color: #bfb5d3; }
+        .table-wrapper { overflow-x: auto; margin-bottom: 12px; border-radius: 10px; border: 1px solid var(--glass-border); background: rgba(15,18,32,0.96); backdrop-filter: blur(6px); }
+        table { width: 100%; border-collapse: collapse; min-width: 300px; }
+        th { background: rgba(255,255,255,0.1); color: #f7dfb5; padding: 7px 6px; font-size: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.15); }
+        td { padding: 7px 6px; border-bottom: 1px solid rgba(255,255,255,0.08); text-align: center; font-size: 0.85rem; color: #f5f3f9; }
+        .stage-current-row td { background: rgba(217, 177, 111, 0.12); border-top: 1px solid rgba(217, 177, 111, 0.35); border-bottom: 1px solid rgba(217, 177, 111, 0.35); }
+        .stage-current-row td:first-child { color: var(--gold-soft); font-weight: 700; }
+        .stage-now-badge { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 9px; font-size: 0.62rem; font-weight: 700; color: #1a1230; background: var(--gold); vertical-align: middle; }
+        .p-num { color: var(--blue); font-weight: bold; }
+        .c-num { color: var(--red); font-weight: bold; }
+        .cycle-block { margin-bottom: 7px; padding: 0; background: rgba(20,24,42,0.94); border-radius: 10px; border: 1px solid var(--glass-border); overflow: hidden; backdrop-filter: blur(8px); }
+        .cycle-header-acc { padding: 9px 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); }
+        .cycle-header-acc .cy-hd-left { display:flex; align-items:center; gap:8px; }
+        .cycle-header-acc .cy-hd-stage { font-size: 0.88rem; color: var(--teal); font-weight: bold; }
+        .cycle-header-acc .cy-hd-age { font-size: 0.72rem; color: var(--muted); }
+        .cycle-header-acc .cy-hd-badges { display:flex; gap:5px; align-items:center; }
+        .cy-badge-p { font-size:0.68rem; font-weight:700; color:var(--blue); background:rgba(125,166,255,0.12); border:1px solid rgba(125,166,255,0.25); border-radius:5px; padding:1px 6px; }
+        .cy-badge-c { font-size:0.68rem; font-weight:700; color:var(--red); background:rgba(255,143,143,0.12); border:1px solid rgba(255,143,143,0.25); border-radius:5px; padding:1px 6px; }
+        .cycle-header-acc::after { content: '▼'; font-size: 0.65rem; color: var(--gold); transition: 0.3s; margin-left:8px; }
+        .cycle-block.active .cycle-header-acc::after { transform: rotate(180deg); }
+        .cycle-content-acc { display: none; padding: 10px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+        .cycle-block.active .cycle-content-acc { display: block; }
+        /* Ensure any <b> or <strong> inside cycle accordion content doesn't force entire paragraph bold */
+        .cycle-content-acc b, .cycle-content-acc strong { font-weight: 400; color: inherit; }
+        .cy-info-row { display:flex; align-items:baseline; gap:6px; margin-bottom:4px; }
+        .cycle-label-p { font-weight: bold; color: var(--blue); font-size: 0.78rem; white-space:nowrap; }
+        .cycle-label-c { font-weight: bold; color: var(--red); font-size: 0.78rem; white-space:nowrap; margin-top:8px; }
+        .cy-title-text { font-size:0.78rem; color:var(--gold); }
+        .cycle-text { font-size: 0.88rem; color: #e8e3f2; display: block; margin-top: 2px; padding-left: 8px; margin-bottom: 8px; line-height:1.68; text-align:justify; border-left:2px solid rgba(143,99,255,0.3); }
+        /* ensure pdetail-inner normal weight but keep .kw bold */
+        .cycle-content-acc .pdetail-inner { font-weight:400; color:inherit; }
+        .cycle-content-acc .pdetail-inner .kw { font-weight:700; color:var(--accent); }
+        .loshu-wrap { background: rgba(20,24,42,0.94); padding: 14px; border-radius: 14px; border: 1px solid var(--glass-border); margin-top: 6px; margin-bottom: 12px; backdrop-filter: blur(8px); }
+        .loshu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; max-width: 260px; margin: 0 auto 12px; }
+        .loshu-cell { aspect-ratio: 1/1; background: rgba(14,17,31,0.96); border: 1px solid var(--glass-border); border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: 0.4s; backdrop-filter: blur(6px); }
+        .loshu-cell.active { border-color: var(--accent-2); background: rgba(143,99,255,0.16); box-shadow: 0 0 18px rgba(143,99,255,0.22); }
+        .loshu-label { font-size: 0.65rem; color: #666; position: absolute; top: 8px; font-weight: bold; text-align: center; width: 100%; }
+        .loshu-nums { font-size: 1.5rem; font-weight: 800; color: var(--gold); letter-spacing: 1px; }
+        .loshu-report-card { background: rgba(15,18,32,0.96); padding: 10px 12px; border-radius: 10px; border-left: 3px solid var(--accent); margin-bottom: 8px; border: 1px solid var(--glass-border); backdrop-filter: blur(6px); }
+        .loshu-report-card h5 { margin: 0 0 5px 0; font-size: 0.85rem; color: var(--teal); }
+        .loshu-item { font-size: 0.83rem; color: #ccc; margin-bottom: 6px; line-height: 1.55; }
+        .loshu-point { color: var(--gold); font-weight: bold; }
+
+        /* 심층 상담 스타일 */
+        .deep-question { color: var(--gold); font-weight: 800; font-size: 1rem; margin-bottom: 12px; display:block; }
+        .deep-btn { padding: 12px 14px; border-radius: 10px; border: none; cursor: pointer; font-weight: 700; }
+        .deep-btn.over { background: linear-gradient(90deg, rgba(217,177,111,0.14), rgba(163,102,255,0.06)); color: var(--text); border:1px solid rgba(217,177,111,0.25); }
+        .deep-btn.under { background: linear-gradient(90deg, rgba(255,110,110,0.06), rgba(20,24,42,0.04)); color: var(--text); border:1px solid rgba(255,110,110,0.12); }
+        .deep-actions { display:flex; gap:12px; margin-top:8px; margin-bottom:14px; }
+        .deep-report { background: rgba(10,10,18,0.9); padding:18px; border-radius:12px; border:1px solid var(--glass-border); line-height:1.9; white-space:pre-wrap; font-size:0.95rem; color: #efe9e3; }
+        .cycle-deep-btn { padding:6px 10px; border-radius:8px; background: linear-gradient(90deg, var(--gold), var(--accent)); color: #111; font-weight:800; border: none; cursor: pointer; margin-top:8px; font-size:0.8rem; }
+        .cycle-deep-report { background: rgba(14,17,31,0.96); border: 1px solid rgba(217,177,111,0.15); padding:10px 12px; border-radius:10px; margin-top:8px; display:block; text-align:left; }
+        .deep-prompt-container { margin-top:6px; }
+
+        /* ── 인생 단계 프로그레스 바 ── */
+        .stage-progress-wrap { margin:10px 0 14px; padding:12px 14px; background:rgba(20,24,42,0.92); border-radius:10px; border:1px solid var(--glass-border); }
+        .stage-progress-bar { display:flex; align-items:flex-start; margin-bottom:8px; }
+        .stage-step { display:flex; flex-direction:column; align-items:center; flex:1; }
+        .step-dot { width:26px; height:26px; border-radius:50%; border:2px solid rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:800; color:var(--muted); background:rgba(15,18,32,0.9); flex-shrink:0; transition:0.3s; }
+        .stage-step.done .step-dot { background:rgba(125,224,208,0.15); border-color:var(--teal); color:var(--teal); }
+        .stage-step.active .step-dot { background:rgba(217,177,111,0.25); border-color:var(--gold); color:var(--gold); box-shadow:0 0 10px rgba(217,177,111,0.35); transform:scale(1.15); }
+        .step-label { font-size:0.6rem; color:var(--muted); text-align:center; margin-top:5px; line-height:1.3; }
+        .stage-step.active .step-label { color:var(--gold); font-weight:700; }
+        .stage-step.done .step-label { color:var(--teal); }
+        .step-line-wrap { flex:1; display:flex; align-items:center; padding-bottom:18px; }
+        .step-line { height:2px; width:100%; background:rgba(255,255,255,0.07); transition:0.3s; }
+        .step-line.done { background:linear-gradient(90deg,var(--teal),rgba(125,224,208,0.3)); }
+        .stage-progress-msg { font-size:0.82rem; color:var(--text); text-align:center; padding-top:7px; border-top:1px solid rgba(255,255,255,0.06); }
+
+        /* ── 인생 스토리텔링 리포트 ── */
+        .story-report { background:linear-gradient(160deg,rgba(20,24,42,0.97),rgba(28,18,46,0.95)); border:1px solid var(--glass-border); border-radius:14px; padding:16px 14px; margin-bottom:12px; }
+        .story-title { font-size:0.85rem; font-weight:700; color:var(--gold); margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid rgba(217,177,111,0.15); }
+        .story-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:11px 13px; margin-bottom:4px; }
+        .story-card-tag { font-size:0.67rem; font-weight:700; color:var(--gold); letter-spacing:0.04em; margin-bottom:7px; opacity:0.85; }
+        .story-card-desc { font-size:0.81rem; color:#c0bcd4; line-height:1.72; word-break:keep-all; }
+        .story-card-desc b { display:block; font-size:0.88rem; font-weight:700; color:var(--gold-soft); margin-bottom:4px; }
+        .story-card-desc .kw { display:block; margin-bottom:6px; }
+        .story-card-desc b + br, .story-card-desc .kw + br { display:none; }
+        .story-arrow-line { text-align:center; font-size:0.8rem; color:rgba(217,177,111,0.25); margin:2px 0; }
+        .story-highlight { color:var(--gold-soft); font-weight:700; }
+        .story-chapter { color:var(--teal); font-style:italic; font-weight:600; }
+        .story-core { background:rgba(217,177,111,0.06); border-left:2px solid var(--gold); padding:7px 10px; border-radius:0 6px 6px 0; font-size:0.84rem; color:var(--gold-soft); line-height:1.6; margin-top:4px; font-weight:600; }
+        .story-accordion { border-color:rgba(217,177,111,0.35) !important; background:rgba(217,177,111,0.04) !important; }
+        .story-accordion .accordion-header h4 { background:linear-gradient(90deg, var(--gold), #e8c97a, var(--gold-soft)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight:700; }
+
+        /* ── 핵심 처방 강조 박스 ── */
+        .story-presc-box {
+            background: linear-gradient(145deg, rgba(40,22,60,0.98), rgba(28,20,48,0.97));
+            border: 1px solid rgba(217,177,111,0.45);
+            border-radius: 12px;
+            padding: 16px 14px 14px;
+            margin-top: 4px;
+            box-shadow: 0 0 18px rgba(217,177,111,0.08), inset 0 0 20px rgba(163,102,255,0.04);
+        }
+        .story-presc-headline {
+            font-size: 0.82rem;
+            color: #c5b8d8;
+            line-height: 1.5;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .story-presc-keyword {
+            display: block;
+            font-size: 1.18rem;
+            font-weight: 800;
+            color: var(--gold);
+            letter-spacing: 0.04em;
+            margin-top: 6px;
+            text-shadow: 0 0 12px rgba(217,177,111,0.35);
+        }
+        .story-presc-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(217,177,111,0.4), transparent);
+            margin: 10px 0;
+        }
+        .story-presc-why {
+            font-size: 0.82rem;
+            color: #c8c0dc;
+            line-height: 1.72;
+            word-break: keep-all;
+        }
+
+        /* ── 오늘의 최종 결론 ── */
+        .today-conclusion { background:linear-gradient(135deg,rgba(30,18,50,0.97),rgba(20,24,42,0.97)); border:1px solid rgba(217,177,111,0.3); border-radius:12px; padding:14px; margin-bottom:14px; }
+        .tc-title { font-size:0.82rem; font-weight:700; color:var(--gold); margin-bottom:10px; text-align:center; }
+        .tc-flow { display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.07); flex-wrap:wrap; }
+        .tc-item { text-align:center; padding:6px 12px; background:rgba(255,255,255,0.04); border-radius:8px; border:1px solid rgba(255,255,255,0.08); min-width:64px; }
+        .tc-item.tc-today { border-color:rgba(217,177,111,0.4); background:rgba(217,177,111,0.08); }
+        .tc-label { font-size:0.6rem; color:var(--muted); margin-bottom:2px; }
+        .tc-num { font-size:1.4rem; font-weight:900; color:var(--gold); line-height:1.1; }
+        .tc-kw { font-size:0.6rem; color:var(--teal); margin-top:2px; }
+        .tc-sep { font-size:0.85rem; color:rgba(255,255,255,0.18); }
+        .tc-msg { font-size:0.83rem; line-height:1.65; color:var(--text); }
+        .tc-narrative { font-size:0.83rem; color:#ccc; line-height:1.78; word-break:keep-all; margin-bottom:14px; padding:11px 13px; background:rgba(255,255,255,0.03); border-left:2px solid rgba(217,177,111,0.4); border-radius:0 8px 8px 0; }
+        .tc-presc-highlight { text-align:center; margin-top:4px; padding:14px 12px; background:linear-gradient(145deg,rgba(40,22,60,0.98),rgba(28,20,48,0.97)); border:1px solid rgba(217,177,111,0.5); border-radius:12px; box-shadow:0 0 20px rgba(217,177,111,0.1); }
+        .tc-presc-label { font-size:0.72rem; color:#b0aac4; margin-bottom:8px; }
+        .tc-presc-kw { font-size:1.28rem; font-weight:800; color:var(--gold); letter-spacing:0.06em; text-shadow:0 0 16px rgba(217,177,111,0.45); margin-bottom:6px; }
+        .tc-presc-sub { font-size:0.67rem; color:#7a7090; }
+        .tc-msg-line { margin-bottom:5px; }
+        .tc-final { margin-top:9px; padding-top:9px; border-top:1px solid rgba(255,255,255,0.07); font-size:0.8rem; color:var(--gold-soft); }
+
+        /* ── 10년 타임라인 새 스타일 ── */
+        .timeline-wrap { background: linear-gradient(135deg, rgba(26,30,52,0.95), rgba(38,28,61,0.92)); border: 1px solid var(--glass-border); border-radius: 14px; padding: 14px 14px 12px; margin-bottom: 16px; position: relative; overflow: hidden; backdrop-filter: blur(6px); }
+        .timeline-wrap::before { content: ''; position: absolute; top: -60px; right: -60px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(163,102,255,0.08), transparent 70%); pointer-events: none; }
+        .current-year-banner { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 8px 12px; background: rgba(15,18,34,0.96); border: 1px solid var(--glass-border); border-radius: 8px; backdrop-filter: blur(6px); }
+        .chart-scroll { overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+        .chart-scroll::-webkit-scrollbar { display: none; }
+        .chart-inner { display: flex; align-items: flex-end; gap: 8px; min-width: 560px; height: 180px; padding: 0 4px; position: relative; }
+        .chart-inner::before { content: ''; position: absolute; bottom: 36px; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.05); }
+        .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .bar-energy { font-size: 0.75rem; font-weight: 800; color: var(--muted); margin-bottom: 4px; transition: color 0.3s; }
+        .bar-keyword { font-size: 0.55rem; color: transparent; margin-bottom: 4px; transition: color 0.3s; white-space: nowrap; }
+        .bar-body { width: 100%; max-width: 38px; border-radius: 6px 6px 0 0; transition: all 0.3s; min-height: 6px; }
+        .bar-year { font-size: 0.6rem; color: var(--muted); margin-top: 7px; white-space: nowrap; transition: color 0.3s; }
+        .bar-col.current .bar-energy { color: var(--accent); }
+        .bar-col.current .bar-keyword { color: var(--teal); }
+        .bar-col.current .bar-year { color: var(--accent); font-weight: bold; }
+        .bar-col.current .bar-body { box-shadow: 0 0 16px rgba(163,102,255,0.5); }
+        .bar-col.turning .bar-energy { color: var(--gold); }
+        .bar-col.turning .bar-keyword { color: var(--gold); }
+        .bar-col.turning .bar-year { color: var(--gold); }
+        .bar-col:hover .bar-energy { color: var(--text); }
+        .bar-col:hover .bar-keyword { color: var(--teal); }
+        .bar-col:hover .bar-year { color: var(--text); }
+        .bar-col:hover .bar-body { filter: brightness(1.3); }
+        .chart-legend { display: flex; gap: 16px; margin-top: 14px; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--muted); }
+        .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+        .year-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 20px; }
+        @media(max-width:600px){ .year-cards { grid-template-columns: repeat(2, 1fr); } }
+        .year-card { background: rgba(15,18,34,0.96); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px 6px; text-align: center; transition: all 0.25s; position: relative; overflow: hidden; backdrop-filter: blur(6px); }
+        .year-card:hover { border-color: var(--accent); background: rgba(163,102,255,0.06); transform: translateY(-2px); }
+        .year-card.current { border-color: var(--accent-2); background: rgba(143,99,255,0.16); }
+        .year-card.turning { border-color: var(--gold); background: rgba(217,177,111,0.12); }
+        .yc-year { font-size: 0.62rem; color: var(--muted); display: block; margin-bottom: 3px; }
+        .yc-num { font-size: 1.5rem; font-weight: 900; display: block; line-height: 1; margin-bottom: 3px; }
+        .yc-keyword { font-size: 0.6rem; display: block; margin-bottom: 5px; font-weight: 600; }
+        .yc-desc { font-size: 0.58rem; color: var(--muted); line-height: 1.4; display: block; }
+        .yc-badge { position: absolute; top: 5px; right: 5px; font-size: 0.48rem; padding: 2px 4px; border-radius: 4px; font-weight: bold; }
+        .yc-badge.now { background: rgba(163,102,255,0.3); color: var(--accent); }
+        .yc-badge.turn { background: rgba(251,197,49,0.25); color: var(--gold); }
+        .insight-box { margin-top: 18px; padding: 16px 18px; background: rgba(15,18,34,0.96); border: 1px solid var(--glass-border); border-radius: 12px; font-size: 0.86rem; line-height: 1.66; color: var(--text); backdrop-filter: blur(6px); }
+        .insight-box strong { color: var(--teal); }
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            transform: translateX(-50%) translateY(18px);
+            background: rgba(16, 18, 31, 0.96);
+            color: #f7f4ff;
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 0.84rem;
+            font-weight: 500;
+            z-index: 12000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.24s ease;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(6px);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.warn { border-color: rgba(217, 177, 111, 0.75); color: #ffe6b8; }
+        .toast.error { border-color: rgba(255, 143, 143, 0.75); color: #ffd3d3; }
+        .toast.success { border-color: rgba(125, 224, 208, 0.75); color: #d9fff8; }
+
+#finalDownloadBtn {
+    position: fixed;
+    right: 18px;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 10px 24px rgba(143, 99, 255, 0.42);
+    cursor: pointer;
+    z-index: 12000;
+    display: none; /* 분석 결과가 나올 때만 보이게 설정 */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.2;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#finalDownloadBtn:hover {
+    transform: translateY(-1px) scale(1.06);
+    filter: brightness(1.05);
+}
+
+#finalDownloadBtn span {
+    font-size: 0.6rem;
+    font-weight: bold;
+    display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+
+    </style>
+</head>
+<body>
+
+<div id="loginView">
+    <h2 style="color: #fff;">관리자 로그인</h2>
+  <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 20px;">액세스 코드를 입력하세요.<br></p>
+    <p style="color: var(--muted); font-size: 1rem; margin-bottom: 20px;"><b>상단의 라이프코드앱 저장하기 클릭하세요</b><br></p>
+<p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 20px;">
+<b>상단의 버튼이 보이지 않을경우<br>
+<b>안드로이드:</b> 브라우저 우측 상단 [⋮] → [앱 설치]<br>
+<b>아이폰:</b> 하단 [공유 아이콘] → [홈 화면에 추가]</p>
+
+    <input type="password" id="password" class="login-input" placeholder="비밀번호 입력">
+    <button onclick="login()" style="width: 100%;">로그인</button>
+</div>
+
+
+
+
+
+
+
+
+<div class="container">
+    <div class="header" style="position: relative; text-align: center; margin-bottom: 30px; padding: 10px 0;">
+        <div style="display: inline-block;">
+            <h1 style="margin: 0; font-size: 1.4rem; letter-spacing: 2px; color: #fff;">✦라이프코드 (Life Code)✦</h1>
+ 
+            <p style="margin: 6px 0 0; font-size: 0.85rem; color: var(--muted);">숫자로 읽는 나의 본질과 인생 타임라인</p>
+        </div>
+        
+    </div>
+
+    <div class="input-box">
+        <input type="text" id="inputName" placeholder="이름 입력 (한글/영문)">
+        <input type="date" id="inputBirth">
+        <button id="btnRun">나의 라이프코드 확인하기</button>
+    </div>
+
+    
+    <div id="resultView" style="display: none;">
+        <div class="section-title">📍 핵심 에너지 (Core Numbers)</div>
+        <div class="grid-3">
+            <div class="card zodiac-card">
+                <span>천궁도 별자리</span>
+                <strong id="v-zodiac-name" class="zodiac-name"></strong>
+                <span id="v-zodiac-desc" class="zodiac-desc"></span>
+            </div>
+            <div class="card highlight-card"><span>인생여정수</span><strong id="v-lp"></strong></div>
+<div class="card highlight-card"><span>문 넘버</span><strong id="v-mn"></strong></div>
+            <div id="nameNumberCards" style="display:contents;">
+                <div class="card"><span>운명수</span><strong id="v-dt"></strong></div>
+                <div class="card"><span>혼의 수</span><strong id="v-su"></strong></div>
+                <div class="card"><span>성격수</span><strong id="v-ps"></strong></div>
+                <div class="card"><span>완성수</span><strong id="v-mt"></strong></div>
+            </div>
+           
+        </div>
+        <div id="coreDescArea"></div>
+
+        <div class="section-title">📍 현재 흐름 분석</div>
+        <div class="grid-3">
+            <div class="card"><span>올해의 수</span><strong id="v-py"></strong></div>
+            <div class="card"><span>이번 달</span><strong id="v-pm"></strong></div>
+            <div class="card"><span>오늘의 수</span><strong id="v-pd"></strong></div>
+        </div>
+        <div id="flowDescArea"></div>
+
+        <div class="section-title">📍 수비학 대(大)주기 분석
+            <span id="v-birth-display" style="font-size:0.85rem;color:var(--text);font-weight:normal;margin-left:10px;opacity:0.8;"></span>
+        </div>
+        <div class="cycle-grid" id="mainCycleGrid"></div>
+        <div id="mainCycleArea"></div>
+
+        <div class="section-title">📍 인생 4단계 요약</div>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>단계</th><th>연령</th><th>절정(환경)</th><th>과제(도전)</th></tr></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        <div id="stageProgressBar"></div>
+        <div id="cycleArea"></div>
+
+        <div id="yearHighlightArea"></div>
+
+        <!-- ── 개선: 10년 타임라인 ── -->
+        <div class="section-title">📈 나의 10년 라이프 타임라인</div>
+        <div class="timeline-wrap">
+            <div class="current-year-banner" id="currentBanner"></div>
+            <div class="chart-scroll">
+                <div class="chart-inner" id="chartInner"></div>
+            </div>
+            <div class="chart-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>현재 연도</div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>전환점 (새 9년 주기)</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#3a4055"></div>일반 흐름</div>
+            </div>
+            <div class="year-cards" id="yearCards"></div>
+            <div class="insight-box" id="insightBox"></div>
+        </div>
+
+        <div id="turningPointArea" style="margin-bottom:35px;"></div>
+
+        <div class="section-title">🗓️ 월별 에너지 흐름</div>
+        <div id="monthlyForecastGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px;"></div>
+
+        <div class="section-title">📍 향후 7일간의 에너지 흐름</div>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>날짜</th><th>에너지</th><th>상태</th><th>행동 가이드</th></tr></thead>
+                <tbody id="weeklyTableBody"></tbody>
+            </table>
+        </div>
+        <p style="font-size:0.8rem;color:var(--text);opacity:0.6;margin-top:10px;margin-bottom:50px;">
+            * 개인의 수비학적 주기와 일운(Daily Number)을 결합한 분석입니다.
+        </p>
+
+        <div class="section-title">✅ 오늘의 실천 행동</div>
+        <div class="card" style="border:1px solid var(--accent);background:rgba(163,102,255,0.05);padding:16px;margin-bottom:20px;border-radius:15px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+                <div>
+                    <span style="color:var(--teal);font-size:0.75rem;font-weight:bold;">🍀 추천 행동</span>
+                    <p id="luckAction" style="font-size:0.85rem;margin-top:5px;"></p>
+                </div>
+                <div>
+                    <span style="color:#ff6b6b;font-size:0.75rem;font-weight:bold;">⚠️ 주의 사항</span>
+                    <p id="luckCaution" style="font-size:0.85rem;margin-top:5px;"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button id="finalDownloadBtn" onclick="downloadPDF()">
+    <span style="font-size: 1.2rem;">💾</span>
+    <span style="font-size: 0.6rem; font-weight: bold;">리포트 저장</span>
+</button>
+
+<!--
+  numerology-app 등 이미 쓰는 Render 서비스 URL은 "다른 앱"이면 그 주소로는 이 라이프코드가 안 뜸.
+  이 앱은 별도 Web Service의 주소(주소창 origin)로 열리면 API도 자동 일치.
+-->
+<script>
+(function () {
+  if (window.NUMER_API) return;
+  if (typeof location !== "undefined" && /onrender\.com$/i.test(location.hostname))
+    window.NUMER_API = location.origin;
+  // window.NUMER_API = "https://(이 앱용으로 새로 만든 서비스의 onrender.com 주소)";
+})();
+</script>
+<!-- Use fixed local data file to guarantee latest content (bypass Pages cache) -->
+<script>
+  (function(){
+    // Prefer full data files first; keep minimal emergency file last. 배포 시 ?v= 버전을 올리면 온라인에서 최신 data를 받습니다.
+    const DATA_SOURCES = [
+      './data.js?v=20260428a',
+      './data.fixed.js?v=20260428a',
+      './data.v3.js?v=1'
+    ];
+    const LOGIC_SRC = './logic.js?v=20260429b';
+
+    function loadScript(src, onload, onerror) {
+      const s = document.createElement('script');
+      s.src = src;
+      s.async = false;
+      s.onload = onload;
+      s.onerror = onerror;
+      document.head.appendChild(s);
+    }
+
+    function hasUsableData() {
+      const d = window.NUMEROLOGY_DATA;
+      return !!(
+        d &&
+        d.TITLE_MAP &&
+        d.GROWTH_DATA &&
+        Object.keys(d.GROWTH_DATA).length > 0
+      );
+    }
+
+    function showDataLoadError() {
+      const loginView = document.getElementById('loginView');
+      if (!loginView) return;
+      const id = 'dataLoadErrorMsg';
+      if (document.getElementById(id)) return;
+      const p = document.createElement('p');
+      p.id = id;
+      p.style.cssText = 'margin-top:12px;color:#ffb3b3;font-size:0.82rem;line-height:1.45;';
+      p.textContent = '데이터 로딩 오류가 발생했습니다. 잠시 후 새로고침(F5) 해주세요.';
+      loginView.appendChild(p);
+    }
+
+    function loadLogic() {
+      loadScript(
+        LOGIC_SRC,
+        function(){ console.log('logic.js loaded'); },
+        function(e){ console.error('logic.js load error', e); }
+      );
+    }
+
+    function tryLoadData(index) {
+      if (index >= DATA_SOURCES.length) {
+        console.error('All data sources failed to provide usable NUMEROLOGY_DATA.');
+        showDataLoadError();
+        return;
+      }
+
+      const src = DATA_SOURCES[index];
+      loadScript(
+        src,
+        function(){
+          if (hasUsableData()) {
+            console.log('Loaded numerology data from:', src);
+            loadLogic();
+          } else {
+            console.warn('Data source loaded but unusable, trying next:', src);
+            tryLoadData(index + 1);
+          }
+        },
+        function(){
+          console.warn('Failed to load data source, trying next:', src);
+          tryLoadData(index + 1);
+        }
+      );
+    }
+
+    tryLoadData(0);
+  })();
+</script>
+</body>
+</html>
