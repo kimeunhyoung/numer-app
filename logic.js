@@ -524,7 +524,6 @@ async function downloadPDF() {
     const element = document.querySelector(".container");
 
     try {
-        const useMultiPage = confirm("PDF 저장 방식 선택:\n[확인] A4 여러 페이지(가독성)\n[취소] 긴 한 페이지(기존 방식)");
         const canvas = await html2canvas(element, {
             scale: 2,
             useCORS: true,
@@ -535,33 +534,16 @@ async function downloadPDF() {
         });
 
         const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF("p", "mm", "a4");
-        const imgProps = pdf.getImageProperties(imgData);
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
+        const tmp = new jsPDF("p", "mm", "a4");
+        const imgProps = tmp.getImageProperties(imgData);
+        const pageWidth = tmp.internal.pageSize.getWidth();
         const imgHeight = (imgProps.height * pageWidth) / imgProps.width;
         const fileName = `라이프코드_분석리포트_${new Date().toLocaleDateString()}.pdf`;
 
-        if (useMultiPage) {
-            let heightLeft = imgHeight;
-            let position = 0;
-            pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
-            heightLeft -= pageHeight;
-
-            while (heightLeft > 0) {
-                position = heightLeft - imgHeight;
-                pdf.addPage();
-                pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
-                heightLeft -= pageHeight;
-            }
-            pdf.save(fileName);
-            showToast("A4 다중 페이지 PDF로 저장되었습니다.", "success", 2600);
-        } else {
-            const longPdf = new jsPDF("p", "mm", [pageWidth, imgHeight]);
-            longPdf.addImage(imgData, "PNG", 0, 0, pageWidth, imgHeight);
-            longPdf.save(fileName);
-            showToast("긴 한 페이지 PDF로 저장되었습니다.", "success", 2600);
-        }
+        const longPdf = new jsPDF("p", "mm", [pageWidth, imgHeight]);
+        longPdf.addImage(imgData, "PNG", 0, 0, pageWidth, imgHeight);
+        longPdf.save(fileName);
+        showToast("PDF로 저장되었습니다.", "success", 2600);
     } catch (error) {
         console.error("PDF 생성 실패:", error);
         showToast("PDF 생성 중 오류가 발생했습니다.", "error", 2800);
