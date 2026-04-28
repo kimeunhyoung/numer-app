@@ -27,6 +27,9 @@ app.use(express.static(path.join(__dirname)));
 const SECRET = process.env.JWT_SECRET || "dev-change-me-secret";
 let CURRENT_PASSWORD = process.env.APP_PASSWORD || "888";
 
+/** 설치 앱·브라우저 세션용 JWT 수명. 무효화는 APP_PASSWORD 변경(지문 불일치) 또는 JWT_SECRET 변경 시. (QR 초대 2시간과 무관; env AUTH_TOKEN_EXPIRES 로 조절 가능) */
+const AUTH_TOKEN_EXPIRES = process.env.AUTH_TOKEN_EXPIRES || "3650d";
+
 /** APP_PASSWORD가 바뀌면 값이 달라져, 온라인 check-auth 시 기존 JWT는 401 처리됨 */
 function passwordFingerprint() {
     return crypto
@@ -211,7 +214,7 @@ app.post("/login", (req, res) => {
         const token = jwt.sign(
             { auth: true, pw: passwordFingerprint() },
             SECRET,
-            { expiresIn: "30d" }
+            { expiresIn: AUTH_TOKEN_EXPIRES }
         );
         return res.json({ token });
     }
@@ -228,11 +231,11 @@ app.get("/check-auth", (req, res) => {
         if (!decoded.pw || decoded.pw !== currentFp) {
             return res.status(401).json({ error: "Unauthorized" });
         }
-        // 유효하면 새 토큰 발급 (30일 자동 연장, 현재 비밀번호 지문 반영)
+        // 유효하면 새 토큰 발급 (지문 최신 유지·만료 롤링, 비번 변경 전까지 재로그인 최소화)
         const newToken = jwt.sign(
             { auth: true, pw: currentFp },
             SECRET,
-            { expiresIn: "30d" }
+            { expiresIn: AUTH_TOKEN_EXPIRES }
         );
         res.json({ valid: true, token: newToken });
     } catch (e) {
