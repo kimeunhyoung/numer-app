@@ -12,6 +12,7 @@ window.NUMEROLOGY_DATA = window.NUMEROLOGY_DATA || {
     GROWTH_DATA: {},
     YEAR_STRATEGY: {},
     MONTHLY_KEYWORDS: {},
+    MONTHLY_DESC: {},
     DAY_ADVICE: {},
     DAILY_TIPS: {},
     LOSHU_STRENGTH_RULES: [],

@@ -20,6 +20,7 @@ const {
     GROWTH_DATA = {},
     YEAR_STRATEGY = {},
     MONTHLY_KEYWORDS = {},
+    MONTHLY_DESC = {},
     DAY_ADVICE = {},
     DAILY_TIPS = {},
     getZodiacInfo = function(){ return {n:'미지', i:'✨', t:''}; }
@@ -234,6 +235,15 @@ function initAccordion() {
 function setHtml(id, html) {
     const el = document.getElementById(id);
     if (el) el.innerHTML = html;
+}
+
+function getMonthlyEnergyDesc(num) {
+    const n = Number(num);
+    if (!Number.isFinite(n)) return "";
+    if (MONTHLY_DESC[n]) return MONTHLY_DESC[n];
+    const mod = n % 9 === 0 ? 9 : n % 9;
+    if (MONTHLY_DESC[mod]) return MONTHLY_DESC[mod];
+    return DEEP_MAP[n] || DEEP_MAP[mod] || "";
 }
 
 function renderTimeline(mr_r, dr_r, py, curYear, curM) {
@@ -497,6 +507,18 @@ function startAnalysis() {
             monthlyCards.push(`<div class="card" style="padding:10px 2px;${isCurrentMonth ? "border:1px solid var(--teal);background:rgba(20,184,166,0.1);" : "border:1px solid #222;"}"><span style="font-size:0.65rem;color:${isCurrentMonth ? "var(--teal)" : "var(--muted)"}">${mo}월</span><strong style="font-size:1.1rem;display:block;margin:2px 0;color:var(--accent);">${pm2}</strong><span style="font-size:0.6rem;color:#ccc;">${kw}</span></div>`);
         }
         monthlyGrid.innerHTML = monthlyCards.join("");
+    }
+
+    const monthlyDescEl = document.getElementById("monthlyDescArea");
+    if (monthlyDescEl) {
+        const monthRows = [];
+        for (let mo = 1; mo <= 12; mo++) {
+            const pm2 = reduceToSingle(py + mo, true);
+            const kw = MONTHLY_KEYWORDS[pm2] || (MONTHLY_KEYWORDS[(pm2 % 9 === 0) ? 9 : pm2 % 9] || "흐름");
+            const desc = getMonthlyEnergyDesc(pm2);
+            monthRows.push(`<div class="accordion"><div class="accordion-header"><h4>✦ ${mo}월 — ${pm2}번 월별 흐름</h4></div><div class="accordion-content"><span class="q-text">핵심 키워드: ${kw}</span><div class="desc-content">${desc}</div></div></div>`);
+        }
+        setHtml("monthlyDescArea", monthRows.join(""));
     }
 
     const weeklyTableBody = document.getElementById("weeklyTableBody");

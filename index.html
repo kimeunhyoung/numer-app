@@ -530,6 +530,7 @@
 
         <div class="section-title">🗓️ 월별 에너지 흐름</div>
         <div id="monthlyForecastGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px;"></div>
+        <div id="monthlyDescArea"></div>
 
         <div class="section-title">📍 향후 7일간의 에너지 흐름</div>
         <div class="table-wrapper">
@@ -580,11 +581,11 @@
   (function(){
     // Prefer full data files first; keep minimal emergency file last. 배포 시 ?v= 버전을 올리면 온라인에서 최신 data를 받습니다.
     const DATA_SOURCES = [
-      './data.js?v=20260428a',
-      './data.fixed.js?v=20260428a',
+      './data.js?v=20260428month',
+      './data.fixed.js?v=20260428month',
       './data.v3.js?v=1'
     ];
-    const LOGIC_SRC = './logic.js?v=20260502strip1';
+    const LOGIC_SRC = './logic.js?v=20260428month1';
 
     function loadScript(src, onload, onerror) {
       const s = document.createElement('script');
