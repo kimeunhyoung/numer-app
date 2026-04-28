@@ -246,6 +246,45 @@ function getMonthlyEnergyDesc(num) {
     return DEEP_MAP[n] || DEEP_MAP[mod] || "";
 }
 
+function monthlyKeywordForPm(pm2) {
+    return MONTHLY_KEYWORDS[pm2] || MONTHLY_KEYWORDS[(pm2 % 9 === 0) ? 9 : pm2 % 9] || "흐름";
+}
+
+/** 월 카드 클릭 시 한 달 분만 아래 패널에 표시. 기본은 이번 달. */
+function wireMonthlyEnergyGrid(py, curM) {
+    const grid = document.getElementById("monthlyForecastGrid");
+    const panel = document.getElementById("monthlyDescArea");
+    if (!grid || !panel) return;
+
+    function showMonth(mo) {
+        const pm2 = reduceToSingle(py + mo, true);
+        const kw = monthlyKeywordForPm(pm2);
+        const desc = getMonthlyEnergyDesc(pm2);
+        grid.querySelectorAll(".monthly-pick-cell").forEach((el) => {
+            const m = Number(el.dataset.month);
+            el.classList.toggle("monthly-pick-selected", m === mo);
+            el.classList.toggle("monthly-pick-current", m === curM);
+        });
+        panel.innerHTML = `<div class="monthly-detail-inner">
+            <div class="monthly-detail-head">${mo}월 · <strong>${pm2}번</strong> 월별 흐름</div>
+            <span class="q-text">핵심 키워드: ${kw}</span>
+            <div class="desc-content">${desc}</div>
+        </div>`;
+    }
+
+    grid.querySelectorAll(".monthly-pick-cell").forEach((el) => {
+        const mo = Number(el.dataset.month);
+        el.addEventListener("click", () => showMonth(mo));
+        el.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                showMonth(mo);
+            }
+        });
+    });
+    showMonth(curM);
+}
+
 function renderTimeline(mr_r, dr_r, py, curYear, curM) {
     const yearData = [];
     for (let i = 0; i < 10; i++) {
@@ -503,22 +542,11 @@ function startAnalysis() {
         for (let mo = 1; mo <= 12; mo++) {
             const pm2 = reduceToSingle(py + mo, true);
             const isCurrentMonth = (mo === curM);
-            const kw = MONTHLY_KEYWORDS[pm2] || (MONTHLY_KEYWORDS[(pm2 % 9 === 0) ? 9 : pm2 % 9] || "흐름");
-            monthlyCards.push(`<div class="card" style="padding:10px 2px;${isCurrentMonth ? "border:1px solid var(--teal);background:rgba(20,184,166,0.1);" : "border:1px solid #222;"}"><span style="font-size:0.65rem;color:${isCurrentMonth ? "var(--teal)" : "var(--muted)"}">${mo}월</span><strong style="font-size:1.1rem;display:block;margin:2px 0;color:var(--accent);">${pm2}</strong><span style="font-size:0.6rem;color:#ccc;">${kw}</span></div>`);
+            const kw = monthlyKeywordForPm(pm2);
+            monthlyCards.push(`<div class="card monthly-pick-cell" role="button" tabindex="0" data-month="${mo}" aria-label="${mo}월 월별 에너지 설명 보기" style="padding:10px 2px;border:1px solid #222;"><span style="font-size:0.65rem;color:${isCurrentMonth ? "var(--teal)" : "var(--muted)"}">${mo}월</span><strong style="font-size:1.1rem;display:block;margin:2px 0;color:var(--accent);">${pm2}</strong><span style="font-size:0.6rem;color:#ccc;">${kw}</span></div>`);
         }
         monthlyGrid.innerHTML = monthlyCards.join("");
-    }
-
-    const monthlyDescEl = document.getElementById("monthlyDescArea");
-    if (monthlyDescEl) {
-        const monthRows = [];
-        for (let mo = 1; mo <= 12; mo++) {
-            const pm2 = reduceToSingle(py + mo, true);
-            const kw = MONTHLY_KEYWORDS[pm2] || (MONTHLY_KEYWORDS[(pm2 % 9 === 0) ? 9 : pm2 % 9] || "흐름");
-            const desc = getMonthlyEnergyDesc(pm2);
-            monthRows.push(`<div class="accordion"><div class="accordion-header"><h4>✦ ${mo}월 — ${pm2}번 월별 흐름</h4></div><div class="accordion-content"><span class="q-text">핵심 키워드: ${kw}</span><div class="desc-content">${desc}</div></div></div>`);
-        }
-        setHtml("monthlyDescArea", monthRows.join(""));
+        wireMonthlyEnergyGrid(py, curM);
     }
 
     const weeklyTableBody = document.getElementById("weeklyTableBody");

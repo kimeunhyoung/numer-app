@@ -169,6 +169,15 @@
             letter-spacing: 0;
         }
         .kw { color: var(--accent); font-weight: bold; }
+        .monthly-pick-hint { font-size: 0.78rem; color: var(--muted); margin: 0 0 10px 0; line-height: 1.45; }
+        .monthly-pick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
+        .monthly-pick-cell { cursor: pointer; user-select: none; transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; outline: none; }
+        .monthly-pick-cell:focus-visible { box-shadow: 0 0 0 2px rgba(163,102,255,0.45); }
+        .monthly-pick-cell.monthly-pick-current:not(.monthly-pick-selected) { border-color: rgba(20,184,166,0.5) !important; background: rgba(20,184,166,0.08) !important; }
+        .monthly-pick-cell.monthly-pick-selected { border-color: var(--gold) !important; box-shadow: 0 0 12px rgba(217,177,111,0.25); background: rgba(217,177,111,0.08) !important; }
+        .monthly-desc-panel { margin-bottom: 14px; min-height: 0; }
+        .monthly-detail-inner { background: rgba(20,24,42,0.92); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px 14px; }
+        .monthly-detail-head { font-size: 0.88rem; color: var(--teal); font-weight: 700; margin-bottom: 8px; }
         /* Make Pinnacle/Challenge bracket labels slightly lighter inside cycle accordion for visual consistency */
         .cycle-content-acc .kw { font-weight: 500; color: var(--accent); }
         .legend-item, .yc-year, .yc-desc, .bar-year, .bar-energy { color: #d6cde6; }
@@ -529,8 +538,9 @@
         <div id="turningPointArea" style="margin-bottom:35px;"></div>
 
         <div class="section-title">🗓️ 월별 에너지 흐름</div>
-        <div id="monthlyForecastGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px;"></div>
-        <div id="monthlyDescArea"></div>
+        <p class="monthly-pick-hint">표에서 월을 누르면 아래에 그 달 해설이 나옵니다.</p>
+        <div id="monthlyForecastGrid" class="monthly-pick-grid"></div>
+        <div id="monthlyDescArea" class="monthly-desc-panel"></div>
 
         <div class="section-title">📍 향후 7일간의 에너지 흐름</div>
         <div class="table-wrapper">
@@ -585,7 +595,7 @@
       './data.fixed.js?v=20260428month',
       './data.v3.js?v=1'
     ];
-    const LOGIC_SRC = './logic.js?v=20260428month1';
+    const LOGIC_SRC = './logic.js?v=20260428pick1';
 
     function loadScript(src, onload, onerror) {
       const s = document.createElement('script');
