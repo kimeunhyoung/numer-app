@@ -14,6 +14,8 @@ const {
     TL_DESC = {},
     DEEP_MAP = {},
     MOON_MAP = {},
+    P_DETAIL = {},
+    C_DETAIL = {},
     QUESTIONS = {},
     GROWTH_DATA = {},
     YEAR_STRATEGY = {},
@@ -205,8 +207,24 @@ function reduceToSingle(n, allowM = true) {
     return r;
 }
 
+/** 인생 4단계 펼침 설명에서 '심층분석리포트' 제목(및 그 이후)만 제거 */
+function stripDeepReportSection(html) {
+    if (!html || typeof html !== "string") return "";
+    const needles = ["심층분석리포트", "심층 분석 리포트", "심층진단리포트", "심층 진단 리포트"];
+    let pos = -1;
+    for (const n of needles) {
+        const i = html.indexOf(n);
+        if (i !== -1 && (pos === -1 || i < pos)) pos = i;
+    }
+    if (pos === -1) return html;
+    let s = html.slice(0, pos);
+    s = s.replace(/<[^>]*$/, "").trimEnd();
+    s = s.replace(/(?:<br\s*\/?>|\s)+$/i, "");
+    return s;
+}
+
 function initAccordion() {
-    document.querySelectorAll(".accordion-header").forEach(h => {
+    document.querySelectorAll(".accordion-header,.cycle-header-acc").forEach(h => {
         h.onclick = function () {
             this.parentElement.classList.toggle("active");
         };
@@ -429,6 +447,9 @@ function startAnalysis() {
             <td class="c-num">${c.c}</td>
         </tr>
     `).join(""));
+    const pHtml = (p) => stripDeepReportSection(P_DETAIL[p] || "");
+    const cHtml = (c) => stripDeepReportSection(C_DETAIL[c] || "");
+    setHtml("cycleArea", cyData.map((c, i) => `<div class="cycle-block"><div class="cycle-header-acc"><div class="cy-hd-left"><span class="cy-hd-stage">${c.s} (${c.a}세)</span><span class="cy-hd-age">${TITLE_MAP[c.p] || ""}${i === curStageIdx ? ' <span class="major-now-badge">현재</span>' : ""}</span></div><div class="cy-hd-badges"><span class="cy-badge-p">P${c.p}</span><span class="cy-badge-c">C${c.c}</span></div></div><div class="cycle-content-acc"><div class="cy-info-row"><span class="cycle-label-p">📍 환경 ${c.p}번</span></div><div class="cycle-text"><div class="pdetail-inner">${pHtml(c.p)}</div></div><div class="cy-info-row"><span class="cycle-label-c">🎯 과제 ${c.c}번</span></div><div class="cycle-text"><div class="pdetail-inner">${cHtml(c.c)}</div></div></div></div>`).join(""));
     const stageSeasons = ["봄 · 씨앗기", "여름 · 성장기", "가을 · 결실기", "겨울 · 완성기"];
 
     // ── 프로그레스 바 ──
